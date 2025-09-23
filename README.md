@@ -22,6 +22,12 @@ A modern Android quiz application built with Jetpack Compose, Kotlin, and Clean 
 - **Clean Architecture**: Repository pattern with dependency injection
 - **Modern Android Stack**: Built with the latest Android development best practices
 
+## 📸 Screenshots
+
+<img src="/images/1.png" alt="Screenshot 1" width="150"/>
+<img src="/images/2.png" alt="Screenshot 2" width="150"/>
+<img src="/images/3.png" alt="Screenshot 3" width="150"/>
+
 ## 🏗️ Architecture
 
 This project follows Clean Architecture principles and modern Android development patterns:
