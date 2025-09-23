@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AndroidQuiz</string>
+    <string name="quiz_finished">🎉 Quiz Finished! 🎉</string>
+    <string name="you_ve_completed_all_questions">You\'ve completed all %1$d questions.</string>
+    <string name="restart_quiz">Restart Quiz</string>
+    <string name="loading_question">Loading question...</string>
+    <string name="no_questions_available">No questions available.</string>
+    <string name="android_quiz">Android Quiz</string>
+    <string name="next">Next</string>
+    <string name="show_answer">Show Answer</string>
+    <string name="previous">Previous</string>
+</resources>
