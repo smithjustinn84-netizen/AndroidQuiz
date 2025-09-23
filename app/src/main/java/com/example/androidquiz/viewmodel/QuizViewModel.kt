@@ -3,16 +3,16 @@ package com.example.androidquiz.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidquiz.data.QuizQuestion
-import com.example.androidquiz.repository.QuizRepository // Added import
+import com.example.androidquiz.repository.QuizRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first // Added import for collecting flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch // Added import for launching coroutine
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 

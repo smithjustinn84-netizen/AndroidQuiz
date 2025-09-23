@@ -10,8 +10,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.androidquiz.ui.theme.AndroidQuizTheme
-import com.example.androidquiz.ui.QuizScreen // Updated import
-import com.example.androidquiz.viewmodel.QuizViewModel // Updated import
+import com.example.androidquiz.ui.QuizScreen
+import com.example.androidquiz.viewmodel.QuizViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
