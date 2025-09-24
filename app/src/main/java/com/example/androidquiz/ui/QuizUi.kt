@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.androidquiz.R
+import com.example.androidquiz.data.QuizCategory
 import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.repository.QuizRepository
 import com.example.androidquiz.ui.screens.QuizFinishedScreen
@@ -94,17 +95,20 @@ class FakeQuizRepositoryPreview : QuizRepository {
                 QuizQuestion(
                     1,
                     "Preview Question 1: What is an Activity?",
-                    "An Activity is a single screen."
+                    "An Activity is a single screen.",
+                    category = QuizCategory.AndroidFundamentals
                 ),
                 QuizQuestion(
                     2,
                     "Preview Question 2: What is Compose?",
-                    "Compose is a modern UI toolkit."
+                    "Compose is a modern UI toolkit.",
+                    category = QuizCategory.JetpackComponents
                 ),
                 QuizQuestion(
                     3,
                     "Preview Question 3: What is a ViewModel?",
-                    "ViewModel stores UI-related data."
+                    "ViewModel stores UI-related data.",
+                    category = QuizCategory.JetpackComponents
                 )
             )
         )

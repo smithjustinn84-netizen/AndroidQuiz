@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androidquiz.R
+import com.example.androidquiz.data.QuizCategory
 import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.ui.theme.AndroidQuizTheme
 import kotlinx.coroutines.delay
@@ -165,7 +166,8 @@ fun QuizCardPreview_QuestionShown() {
                 question = QuizQuestion(
                     1,
                     "What is an Activity in Android?",
-                    "An Activity represents a single screen with a user interface (UI) in an Android app. It's the primary way users interact with your application."
+                    "An Activity represents a single screen with a user interface (UI) in an Android app. It's the primary way users interact with your application.",
+                    category = QuizCategory.AndroidFundamentals
                 ),
                 onNextClicked = {},
                 onPreviousClicked = {},
@@ -185,7 +187,8 @@ fun QuizCardPreview_AnswerShown() {
                 question = QuizQuestion(
                     1,
                     "What is Jetpack Compose?",
-                    "Jetpack Compose is Android\'s modern toolkit for building native UIs. It simplifies and accelerates UI development on Android with less code, powerful tools, and intuitive Kotlin APIs. It allows you to build your UI by defining a set of composable functions that describe how your UI should look given the current state."
+                    "Jetpack Compose is Android\'s modern toolkit for building native UIs. It simplifies and accelerates UI development on Android with less code, powerful tools, and intuitive Kotlin APIs. It allows you to build your UI by defining a set of composable functions that describe how your UI should look given the current state.",
+                    category = QuizCategory.JetpackComponents
                 ),
                 onNextClicked = {},
                 onPreviousClicked = {},
@@ -209,7 +212,8 @@ fun QuizCardPreview_Wide_QuestionShown() {
             question = QuizQuestion(
                 1,
                 "What is the purpose of the AndroidManifest.xml file?",
-                "The AndroidManifest.xml file is a crucial part of every Android app. It describes essential information about your app to the Android build tools, the Android operating system, and Google Play."
+                "The AndroidManifest.xml file is a crucial part of every Android app. It describes essential information about your app to the Android build tools, the Android operating system, and Google Play.",
+                category = QuizCategory.AndroidFundamentals
             ),
             onNextClicked = {},
             onPreviousClicked = {},
@@ -227,7 +231,8 @@ fun QuizCardPreview_Wide_AnswerShown() {
             question = QuizQuestion(
                 1,
                 "What is a ViewModel in Android?",
-                "A ViewModel is a class that is responsible for preparing and managing the data for an Activity or a Fragment. It also handles the communication of the Activity/Fragment with the rest of the application."
+                "A ViewModel is a class that is responsible for preparing and managing the data for an Activity or a Fragment. It also handles the communication of the Activity/Fragment with the rest of the application.",
+                category = QuizCategory.JetpackComponents
             ),
             onNextClicked = {},
             onPreviousClicked = {},

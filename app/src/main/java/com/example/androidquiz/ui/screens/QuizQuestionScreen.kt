@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.androidquiz.data.QuizCategory
 import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.repository.QuizRepository
 import com.example.androidquiz.ui.components.QuizCard
@@ -73,12 +74,14 @@ class FakeQuizRepositoryPreview : QuizRepository {
         QuizQuestion(
             101,
             "Preview Question 1 (Screen): What is Jetpack Compose?",
-            "Jetpack Compose is Android\'s modern toolkit for building native UIs."
+            "Jetpack Compose is Android\'s modern toolkit for building native UIs.",
+            category = QuizCategory.JetpackComponents
         ),
         QuizQuestion(
             102,
             "Preview Question 2 (Screen): What is an Activity?",
-            "An Activity is a single, focused thing that the user can do."
+            "An Activity is a single, focused thing that the user can do.",
+            category = QuizCategory.AndroidFundamentals
         )
     )
 
@@ -97,7 +100,7 @@ fun QuizQuestionScreenPreview() {
     AndroidQuizTheme {
         val fakeRepo = FakeQuizRepositoryPreview()
         val firstQuestion =
-            fakeRepo.getFirstQuestionForPreview() ?: QuizQuestion(0, "Error", "Error")
+            fakeRepo.getFirstQuestionForPreview() ?: QuizQuestion(0, "Error", "Error", QuizCategory.AndroidFundamentals)
         val totalFakeQuestions = fakeRepo.getQuestionCountForPreview()
 
         QuizQuestionScreen(
