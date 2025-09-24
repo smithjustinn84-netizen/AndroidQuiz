@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.repository.QuizRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,7 @@ class QuizViewModel @Inject constructor(
     }
 
     private fun loadRandomQuestions() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             // Collect questions from the repository
             val allQuestions = quizRepository.getQuizQuestions().first() // Using .first() as it's a one-shot load for now
             val shuffledQuestions = allQuestions.shuffled(Random(System.currentTimeMillis()))
