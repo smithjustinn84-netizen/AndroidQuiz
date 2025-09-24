@@ -311,6 +311,24 @@ class QuizLocalDataSource @Inject constructor() : QuizDataSource {
             questionText = "What are Build Variants in Android, and how can they be used to manage different versions of your app (e.g., debug vs. release, free vs. paid)?",
             answerText = "Build Variants are the result of combining Build Types and Product Flavors.\n*   **Build Types:** Define how your app is built and packaged, typically `debug` and `release`. You can configure properties like `debuggable`, `minifyEnabled` (for code shrinking/obfuscation), signing configurations, etc.\n*   **Product Flavors:** Allow you to create different versions of your app from the same codebase. For example, \"free\" vs. \"paid\", or different branding for various clients. Each flavor can have its own source code, resources, and configurations (e.g., application ID, API endpoints, icons).\nBy combining build types and product flavors, Gradle generates different build variants (e.g., `freeDebug`, `freeRelease`, `paidDebug`, `paidRelease`). This allows developers to easily manage and build multiple distinct versions of their app from a single project, each with potentially different features, resources, or configurations.",
             category = QuizCategory.BuildAndTools
+        ),
+        QuizQuestion(
+            id = 51,
+            questionText = "What is structured concurrency in Kotlin Coroutines, and what are its benefits?",
+            answerText = "Structured concurrency is a programming paradigm that ensures coroutines are launched within a specific `CoroutineScope` and that their lifecycles are managed by that scope. When a scope is cancelled, all coroutines launched within it are automatically cancelled. Benefits include:\n*   **Leak Prevention:** Prevents coroutines from leaking (running indefinitely when they are no longer needed).\n*   **Error Handling:** Simplifies error propagation; an exception in a child coroutine typically cancels its parent and siblings (unless handled).\n*   **Clarity:** Makes the parent-child relationship and lifecycle of coroutines clear.\n*   **Testability:** Easier to manage and test coroutines within defined scopes.",
+            category = QuizCategory.Coroutines
+        ),
+        QuizQuestion(
+            id = 52,
+            questionText = "Explain the roles of `Job` and `Deferred` in Kotlin Coroutines. How do they relate to `launch` and `async`?",
+            answerText = "`Job`: Represents a cancellable piece of work initiated by `launch`. It doesn't produce a result value. It can be used to manage the lifecycle of a coroutine (e.g., wait for its completion using `join()` or cancel it using `cancel()`). `Deferred<T>`: A subclass of `Job` that represents a future result of an asynchronous computation, initiated by `async`. It promises a result of type `T` sometime in the future. You can get the result (suspending if necessary) by calling `await()`. It can also be cancelled. In summary: `launch` returns a `Job`. `async` returns a `Deferred<T>`.",
+            category = QuizCategory.Coroutines
+        ),
+        QuizQuestion(
+            id = 53,
+            questionText = "What makes a function a `suspend` function in Kotlin, and what does it mean for a function to be suspendable?",
+            answerText = "A function is marked with the `suspend` modifier to indicate that it can perform long-running operations without blocking the thread it's called from. For a function to be suspendable means:\n*   It can pause its execution at a suspension point (e.g., when calling another `suspend` function like `delay()` or an I/O operation) and allow other coroutines or tasks to run on the underlying thread.\n*   It can resume its execution later, potentially on a different thread, when the suspended operation completes.\n*   `suspend` functions can only be called from other `suspend` functions or from within a coroutine (e.g., inside a `launch` or `async` block).",
+            category = QuizCategory.Coroutines
         )
     )
 }
