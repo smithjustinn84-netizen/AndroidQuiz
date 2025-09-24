@@ -1,7 +1,19 @@
 package com.example.androidquiz.data
 
+sealed class QuizCategory(val displayName: String) {
+    object AndroidAdvancedTopics : QuizCategory("Android Advanced Topics")
+    object AndroidFundamentals : QuizCategory("Android Fundamentals")
+    object AndroidUI : QuizCategory("Android UI")
+    object BuildAndTools : QuizCategory("Build and Tools")
+    object Coroutines : QuizCategory("Coroutines")
+    object JetpackComponents : QuizCategory("Jetpack Components")
+    object Kotlin : QuizCategory("Kotlin")
+    object SolidPrinciples : QuizCategory("SOLID Principles")
+}
+
 data class QuizQuestion(
     val id: Int,
     val questionText: String,
-    val answerText: String
+    val answerText: String,
+    val category: QuizCategory // Changed from String to QuizCategory
 )
