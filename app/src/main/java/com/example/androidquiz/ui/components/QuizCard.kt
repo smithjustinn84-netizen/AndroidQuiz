@@ -1,8 +1,12 @@
 package com.example.androidquiz.ui.components
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,7 +23,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,8 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androidquiz.R
@@ -48,112 +53,124 @@ fun QuizCard(
     initialShowAnswer: Boolean = false
 ) {
     var showAnswer by rememberSaveable { mutableStateOf(initialShowAnswer) }
-    var offsetX by remember { mutableFloatStateOf(0f) }
+    val offsetX = remember { Animatable(0f) }
     val textToSpeak = if (showAnswer) question.answerText else question.questionText
 
     val scope = rememberCoroutineScope()
-    Column(
+    val density = LocalDensity.current
+
+    BoxWithConstraints(
         modifier = modifier
             .padding(16.dp) // Inner padding for the card content
             .fillMaxWidth()
             .fillMaxHeight()
-            .pointerInput(Unit) { // Consider keying this with viewModel if issues arise
-                detectDragGestures(
-                    onDragEnd = {
-                        scope.launch {
-                            if (offsetX < -20) {
-                                onPreviousClicked()
-                            } else if (offsetX > 20) {
-                                onNextClicked()
-                            }
-                            offsetX = 0f
-                            showAnswer = false
-                        }
-                    },
-                    onDrag = { change, dragAmount ->
-                        scope.launch {
-                            change.consume()
-                            offsetX += dragAmount.x
-                        }
-                    }
-                )
-            }, // Column fills the card's height
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Scrollable content area (Question + Answer)
-        Card(
-            modifier = Modifier
-                .offset(offsetX.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            scope.launch {
+        val screenWidthPx = with(density) { maxWidth.toPx() }
 
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .pointerInput(question) { // Re-key when question changes to reset drag state
+                    detectDragGestures(
+                        onDragEnd = {
+                            scope.launch {
+                                val targetOffsetX = when {
+                                    offsetX.value < -screenWidthPx / 4 -> -screenWidthPx
+                                    offsetX.value > screenWidthPx / 4 -> screenWidthPx
+                                    else -> 0f
+                                }
+                                offsetX.animateTo(targetOffsetX, animationSpec = tween(300))
+                                if (targetOffsetX != 0f) {
+                                    if (targetOffsetX >= 0) onNextClicked() else onPreviousClicked()
+                                    offsetX.snapTo(0f)
+                                }
+                                showAnswer = false // Hide answer on swipe
                             }
                         },
-                        onTap = {
+                        onDrag = { change, dragAmount ->
                             scope.launch {
-                                showAnswer = !showAnswer
+                                change.consume()
+                                offsetX.snapTo(offsetX.value + dragAmount.x)
                             }
                         }
                     )
-                }
-                .weight(1f) // Takes available vertical space, pushing buttons down
-                .fillMaxWidth()
+                },
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(Modifier.padding(16.dp)) {
-                if (!showAnswer) {
-                    Text(
-                        text = question.questionText,
-                        fontSize = 20.sp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (showAnswer) {
-                        Text(
-                            text = question.answerText,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState()) // Enables scrolling if content is too long
+            Card(
+                modifier = Modifier
+                    .offset { IntOffset(offsetX.value.toInt(), 0) }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                scope.launch {
+                                    showAnswer = !showAnswer
+                                }
+                            }
                         )
+                    }
+                    .weight(1f) // Takes available vertical space, pushing buttons down
+                    .fillMaxWidth()
+            ) {
+                Column(Modifier
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState())) {
+                    Crossfade(showAnswer, animationSpec = tween(300)) { isVisible ->
+                        when (isVisible) {
+                            true -> Text(
+                                text = question.answerText,
+                                fontSize = 20.sp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            false -> Text(
+                                text = question.questionText,
+                                fontSize = 20.sp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp)) // Space between scrollable content and buttons
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Button(
-                modifier = Modifier.weight(1f),
-                enabled = canGoPrevious,
-                onClick = {
-                    showAnswer = false // Hide answer before moving
-                    onPreviousClicked()
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom
             ) {
-                Text(stringResource(R.string.previous))
+                Button(
+                    modifier = Modifier.weight(1f),
+                    enabled = canGoPrevious,
+                    onClick = {
+                        scope.launch {
+                            showAnswer = false
+                            offsetX.animateTo(-screenWidthPx, animationSpec = tween(300))
+                            onPreviousClicked()
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.previous))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        scope.launch {
+                            showAnswer = false
+                            offsetX.animateTo(screenWidthPx, animationSpec = tween(300))
+                            onNextClicked()
+                        }
+                    }) {
+                    Text(stringResource(R.string.next))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                TextToSpeechButton(
+                    modifier = Modifier.weight(.45f),
+                    textToSpeak = textToSpeak
+                )
             }
-            Spacer(modifier = Modifier.width(16.dp))
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    showAnswer = false // Hide answer before moving
-                    onNextClicked()
-                }) {
-                Text(stringResource(R.string.next))
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Buttons area (fixed at the bottom)
-            TextToSpeechButton(
-                modifier = Modifier.weight(.45f),
-                textToSpeak = textToSpeak
-            )
         }
     }
 }
@@ -162,7 +179,7 @@ fun QuizCard(
 @Composable
 fun QuizCardPreview_QuestionShown() {
     AndroidQuizTheme {
-        Box(modifier = Modifier.height(400.dp)) { // Give preview some height to see effect
+        Box(modifier = Modifier.height(400.dp)) {
             QuizCard(
                 question = QuizQuestion(
                     1,
@@ -183,12 +200,12 @@ fun QuizCardPreview_QuestionShown() {
 @Composable
 fun QuizCardPreview_AnswerShown() {
     AndroidQuizTheme {
-        Box(modifier = Modifier.height(400.dp)) { // Give preview some height
+        Box(modifier = Modifier.height(400.dp)) {
             QuizCard(
                 question = QuizQuestion(
                     1,
                     "What is Jetpack Compose?",
-                    "Jetpack Compose is Android\'s modern toolkit for building native UIs. It simplifies and accelerates UI development on Android with less code, powerful tools, and intuitive Kotlin APIs. It allows you to build your UI by defining a set of composable functions that describe how your UI should look given the current state.",
+                    "Jetpack Compose is Android's modern toolkit for building native UIs. It simplifies and accelerates UI development on Android with less code, powerful tools, and intuitive Kotlin APIs. It allows you to build your UI by defining a set of composable functions that describe how your UI should look given the current state.",
                     category = QuizCategory.JetpackComponents
                 ),
                 onNextClicked = {},
