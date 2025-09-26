@@ -22,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,15 +50,18 @@ fun QuizCard(
     onNextClicked: () -> Unit,
     onPreviousClicked: () -> Unit,
     canGoPrevious: Boolean,
-    modifier: Modifier = Modifier,
-    initialShowAnswer: Boolean = false
+    modifier: Modifier = Modifier
 ) {
-    var showAnswer by rememberSaveable { mutableStateOf(initialShowAnswer) }
+    var showAnswer by rememberSaveable { mutableStateOf(false) }
     val offsetX = remember { Animatable(0f) }
     val textToSpeak = if (showAnswer) question.answerText else question.questionText
 
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
+
+    LaunchedEffect(question) {
+        showAnswer = false
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -85,7 +89,6 @@ fun QuizCard(
                                     if (targetOffsetX >= 0) onNextClicked() else onPreviousClicked()
                                     offsetX.snapTo(0f)
                                 }
-                                showAnswer = false // Hide answer on swipe
                             }
                         },
                         onDrag = { change, dragAmount ->
@@ -189,8 +192,7 @@ fun QuizCardPreview_QuestionShown() {
                 ),
                 onNextClicked = {},
                 onPreviousClicked = {},
-                canGoPrevious = true,
-                initialShowAnswer = false
+                canGoPrevious = true
             )
         }
     }
@@ -210,8 +212,7 @@ fun QuizCardPreview_AnswerShown() {
                 ),
                 onNextClicked = {},
                 onPreviousClicked = {},
-                canGoPrevious = true,
-                initialShowAnswer = true
+                canGoPrevious = true
             )
         }
     }
@@ -235,8 +236,7 @@ fun QuizCardPreview_Wide_QuestionShown() {
             ),
             onNextClicked = {},
             onPreviousClicked = {},
-            canGoPrevious = false,
-            initialShowAnswer = false
+            canGoPrevious = false
         )
     }
 }
@@ -254,8 +254,7 @@ fun QuizCardPreview_Wide_AnswerShown() {
             ),
             onNextClicked = {},
             onPreviousClicked = {},
-            canGoPrevious = true,
-            initialShowAnswer = true
+            canGoPrevious = true
         )
     }
 }
