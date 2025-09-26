@@ -1,6 +1,7 @@
 package com.example.androidquiz.ui.components
 
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,11 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,10 +36,8 @@ import com.example.androidquiz.R
 import com.example.androidquiz.data.QuizCategory
 import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.ui.theme.AndroidQuizTheme
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private const val SWIPE_DEBOUNCE_MILLIS = 100L
 @Composable
 fun QuizCard(
     question: QuizQuestion,
@@ -48,7 +49,8 @@ fun QuizCard(
 ) {
     var showAnswer by rememberSaveable { mutableStateOf(initialShowAnswer) }
     var offsetX by remember { mutableFloatStateOf(0f) }
-    var canProcessSwipeAction by remember { mutableStateOf(true) }
+    val textToSpeak = if (showAnswer) question.answerText else question.questionText
+
     val scope = rememberCoroutineScope()
     Column(
         modifier = modifier
@@ -56,66 +58,66 @@ fun QuizCard(
             .fillMaxWidth()
             .fillMaxHeight()
             .pointerInput(Unit) { // Consider keying this with viewModel if issues arise
-                detectHorizontalDragGestures { change, dragAmount ->
-                    change.consume()
-                    offsetX = dragAmount // Your existing logic for offsetX
-
-                    if (canProcessSwipeAction) {
-                        var actionTakenThisDragEvent = false
-                        when {
-                            offsetX < -10f -> {
+                detectDragGestures(
+                    onDragEnd = {
+                        scope.launch {
+                            if (offsetX < -20) {
                                 onPreviousClicked()
-                                actionTakenThisDragEvent = true
-                            }
-                            offsetX > 10f -> {
+                            } else if (offsetX > 20) {
                                 onNextClicked()
-                                actionTakenThisDragEvent = true
                             }
-                        }
-
-                        if (actionTakenThisDragEvent) {
+                            offsetX = 0f
                             showAnswer = false
-                            canProcessSwipeAction = false
-                            scope.launch {
-                                delay(SWIPE_DEBOUNCE_MILLIS)
-                                canProcessSwipeAction = true
-                            }
+                        }
+                    },
+                    onDrag = { change, dragAmount ->
+                        scope.launch {
+                            change.consume()
+                            offsetX += dragAmount.x
                         }
                     }
-                }
+                )
             }, // Column fills the card's height
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Scrollable content area (Question + Answer)
-        Column(
+        Card(
             modifier = Modifier
+                .offset(offsetX.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            scope.launch {
+
+                            }
+                        },
+                        onTap = {
+                            scope.launch {
+                                showAnswer = !showAnswer
+                            }
+                        }
+                    )
+                }
                 .weight(1f) // Takes available vertical space, pushing buttons down
                 .fillMaxWidth()
         ) {
-            Text(
-                text = question.questionText,
-                fontSize = 20.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            if (!showAnswer) {
-                Button(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(16.dp),
-                    onClick = { showAnswer = true }
-                ) {
-                    Text(stringResource(R.string.show_answer))
-                }
-            } else {
-                Spacer(modifier = Modifier.height(8.dp))
-                if (showAnswer) {
+            Column(Modifier.padding(16.dp)) {
+                if (!showAnswer) {
                     Text(
-                        text = question.answerText,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()) // Enables scrolling if content is too long
+                        text = question.questionText,
+                        fontSize = 20.sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
+                } else {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (showAnswer) {
+                        Text(
+                            text = question.answerText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState()) // Enables scrolling if content is too long
+                        )
+                    }
                 }
             }
         }
@@ -147,7 +149,6 @@ fun QuizCard(
             }
             Spacer(modifier = Modifier.width(16.dp))
 
-            val textToSpeak = if (showAnswer) question.answerText else question.questionText
             // Buttons area (fixed at the bottom)
             TextToSpeechButton(
                 modifier = Modifier.weight(.45f),
