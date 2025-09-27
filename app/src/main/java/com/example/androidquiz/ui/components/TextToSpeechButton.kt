@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
@@ -84,6 +85,7 @@ fun TextToSpeechButton(
 
     FloatingActionButton(
         modifier = modifier,
+        containerColor = Color.Transparent,
         onClick = {
             if (ttsInitialized) {
                 if (isSpeaking) {
@@ -110,7 +112,7 @@ fun TextToSpeechButton(
     ) {
         Icon(
             imageVector = if (isSpeaking) Icons.Filled.Stop else Icons.Filled.PlayArrow,
-            contentDescription = if (isSpeaking) "Stop Text" else "Speak Text"
+            contentDescription = if (isSpeaking) "Stop Text" else "Speak Text",
         )
     }
 }

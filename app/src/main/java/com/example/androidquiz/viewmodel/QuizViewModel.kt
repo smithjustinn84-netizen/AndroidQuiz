@@ -6,82 +6,40 @@ import com.example.androidquiz.data.QuizQuestion
 import com.example.androidquiz.repository.QuizRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 @HiltViewModel
 class QuizViewModel @Inject constructor(
-    private val quizRepository: QuizRepository // Injected repository
+    private val quizRepository: QuizRepository
 ) : ViewModel() {
 
-    private val _questions = MutableStateFlow<List<QuizQuestion>>(emptyList())
-    private val _currentQuestionIndex = MutableStateFlow(0)
-    val currentQuestionIndex: StateFlow<Int> = _currentQuestionIndex.asStateFlow()
+    // Change refreshTrigger to a Boolean
+    private val refreshTrigger = MutableStateFlow(true)
 
-    init {
-        loadRandomQuestions()
-    }
-
-    private fun loadRandomQuestions() {
-        viewModelScope.launch(Dispatchers.IO) {
-            // Collect questions from the repository
-            val allQuestions = quizRepository.getQuizQuestions().first() // Using .first() as it's a one-shot load for now
-            val shuffledQuestions = allQuestions.shuffled(Random(System.currentTimeMillis()))
-            _questions.value = shuffledQuestions // Take 10 random questions
-            _currentQuestionIndex.value = 0 // Reset index when new questions are loaded
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val pagedQuestions: Flow<List<QuizQuestion>> =
+        refreshTrigger.flatMapLatest { _ ->
+            quizRepository
+                .getQuestions(10)
+                .flowOn(Dispatchers.IO)
         }
-    }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
-    val currentQuestion: StateFlow<QuizQuestion?> = _currentQuestionIndex.map {
-        if (_questions.value.isNotEmpty() && it < _questions.value.size) {
-            _questions.value[it]
-        } else {
-            null
+    fun refreshQuestions() {
+        viewModelScope.launch {
+            refreshTrigger.value = !refreshTrigger.value
         }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
-
-    val isQuizFinished: StateFlow<Boolean> = _currentQuestionIndex.map {
-        _questions.value.isEmpty() || it >= _questions.value.size
-    }.stateIn(viewModelScope, SharingStarted.Lazily, _questions.value.isEmpty())
-
-    val progress: StateFlow<Float> = _currentQuestionIndex.map {
-        if (_questions.value.isNotEmpty()) {
-            val currentProgress = if (it >= _questions.value.size) 1f else it.toFloat() / _questions.value.size.toFloat()
-            currentProgress.coerceAtMost(1f)
-        } else {
-            0f
-        }
-    }.stateIn(viewModelScope, SharingStarted.Lazily, 0f)
-
-    fun moveToNextQuestion() {
-        if (_currentQuestionIndex.value < _questions.value.size) {
-            _currentQuestionIndex.value++
-        }
-    }
-
-    fun moveToPreviousQuestion() {
-        if (_currentQuestionIndex.value > 0) {
-            _currentQuestionIndex.value--
-        }
-    }
-
-    fun restartQuiz() {
-        loadRandomQuestions()
-    }
-
-    fun canGoPrevious(): Boolean {
-        return _currentQuestionIndex.value > 0
-    }
-
-    fun getTotalQuestions(): Int {
-        return _questions.value.size
     }
 }

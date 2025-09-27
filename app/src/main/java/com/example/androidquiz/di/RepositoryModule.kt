@@ -1,7 +1,5 @@
 package com.example.androidquiz.di
 
-import com.example.androidquiz.data.QuizDataSource
-import com.example.androidquiz.data.QuizLocalDataSource
 import com.example.androidquiz.repository.QuizRepository
 import com.example.androidquiz.repository.QuizRepositoryImpl
 import dagger.Binds
@@ -16,12 +14,6 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindQuizDataSource(
-        quizLocalDataSource: QuizLocalDataSource
-    ): QuizDataSource
-
-    @Binds
-    @Singleton // QuizRepositoryImpl is already @Singleton, this makes the binding consistent
     abstract fun bindQuizRepository(
         quizRepositoryImpl: QuizRepositoryImpl
     ): QuizRepository

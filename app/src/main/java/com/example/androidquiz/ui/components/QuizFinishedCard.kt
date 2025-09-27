@@ -1,4 +1,4 @@
-package com.example.androidquiz.ui.screens
+package com.example.androidquiz.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -24,7 +24,7 @@ import com.example.androidquiz.R
 import com.example.androidquiz.ui.theme.AndroidQuizTheme
 
 @Composable
-fun QuizFinishedScreen(
+fun QuizFinishedCard(
     modifier: Modifier = Modifier,
     totalQuestions: Int,
     onRestartQuiz: () -> Unit
@@ -63,7 +63,7 @@ fun QuizFinishedScreen(
 @Composable
 fun QuizFinishedScreenPreview() {
     AndroidQuizTheme {
-        QuizFinishedScreen(
+        QuizFinishedCard(
             totalQuestions = 10,
             onRestartQuiz = {}
         )
