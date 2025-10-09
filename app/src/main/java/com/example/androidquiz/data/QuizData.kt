@@ -7,6 +7,7 @@ sealed class QuizCategory(val name: String) {
     object BuildAndTools : QuizCategory("Build and Tools")
     object Coroutines : QuizCategory("Coroutines")
     object JetpackComponents : QuizCategory("Jetpack Components")
+    object JetpackCompose : QuizCategory("Jetpack Compose")
     object Kotlin : QuizCategory("Kotlin")
     object SolidPrinciples : QuizCategory("SOLID Principles")
     object Security : QuizCategory("Security")

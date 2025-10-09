@@ -27,6 +27,7 @@ fun QuizCategory.Companion.valueOf(name: String): QuizCategory {
         "SOLID Principles" -> QuizCategory.SolidPrinciples
         "Security" -> QuizCategory.Security
         "Testing" -> QuizCategory.Testing
+        "Jetpack Compose" -> QuizCategory.JetpackCompose
         else -> throw IllegalArgumentException("Invalid QuizCategory name: $name")
     }
 }
